@@ -1,0 +1,62 @@
+# Third-party dependencies (already tracked submodules remain tracked)
+/thirdparty/
+
+# Build directories
+/build/
+/bin/
+/obj/
+/out/
+
+# C++ compiler and linker output
+*.obj
+*.o
+*.exe
+*.dll
+*.lib
+*.a
+*.so
+*.so.*
+*.dylib
+*.pdb
+*.ilk
+*.exp
+*.idb
+*.pch
+*.gch
+*.ipch
+*.d
+
+# SCons and generated compilation database
+.sconsign.dblite
+.sconsign.dblite.*
+.sconf_temp/
+config.log
+compile_commands.json
+
+# Viewer state, generated exports, and logs
+imgui.ini
+/exports/
+/output/
+*.log
+
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Visual Studio (shared .vscode configuration remains visible)
+.vs/
+*.suo
+*.user
+*.VC.db
+*.VC.opendb
+
+# OS and editor temporary files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*~
+*.swp
+*.swo
