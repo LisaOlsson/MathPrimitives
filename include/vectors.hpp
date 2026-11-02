@@ -371,13 +371,16 @@ namespace mp::vector {
     ---------------------------------
     Compares vectors for component-wise equality.
     */
-    template<typename T> constexpr bool operator==(const Vec2<T>& a, const Vec2<T>& b) {
+    template<typename T> 
+    constexpr bool operator==(const Vec2<T>& a, const Vec2<T>& b) {
         return a.x == b.x && a.y == b.y;
     }
-    template<typename T> constexpr bool operator==(const Vec3<T>& a, const Vec3<T>& b) {
+    template<typename T> 
+    constexpr bool operator==(const Vec3<T>& a, const Vec3<T>& b) {
         return a.x == b.x && a.y == b.y && a.z == b.z;
     }
-    template<typename T> constexpr bool operator==(const Vec4<T>& a, const Vec4<T>& b) {
+    template<typename T> 
+    constexpr bool operator==(const Vec4<T>& a, const Vec4<T>& b) {
         return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
     }
 
@@ -411,15 +414,18 @@ namespace mp::vector {
                INEQUALITY
     ---------------------------------
     Compares vectors for component-wise inequality.
-    False if at least one component differs.
+    True if at least one component differs.
     */
-    template<typename T> constexpr bool operator!=(const Vec2<T>& a, const Vec2<T>& b) {
+    template<typename T> 
+    constexpr bool operator!=(const Vec2<T>& a, const Vec2<T>& b) {
         return !(a == b);
     }
-    template<typename T> constexpr bool operator!=(const Vec3<T>& a, const Vec3<T>& b) {
+    template<typename T> 
+    constexpr bool operator!=(const Vec3<T>& a, const Vec3<T>& b) {
         return !(a == b);
     }
-    template<typename T> constexpr bool operator!=(const Vec4<T>& a, const Vec4<T>& b) {
+    template<typename T> 
+    constexpr bool operator!=(const Vec4<T>& a, const Vec4<T>& b) {
         return !(a == b);
     }
 
