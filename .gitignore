@@ -1,6 +1,12 @@
 # Third-party dependencies (already tracked submodules remain tracked)
 /thirdparty/
 
+# Ignore miscellaneous files
+/benchmarks/
+
+# Ignore TODO-list
+TODO.md
+
 # Build directories
 /build/
 /bin/
