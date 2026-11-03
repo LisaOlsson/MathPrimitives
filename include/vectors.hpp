@@ -262,7 +262,7 @@ namespace mp::vector {
     ---------------------------------
       COMPONENT-WISE MULTIPLICATION
     ---------------------------------
-    Multiplies corresponding components of two vectors using comp_mul(a, b).
+    Multiplies corresponding components of two vectors using cmul(a, b).
     The vector expression a * b computes the dot product instead.
     */
     template<typename T>
@@ -470,7 +470,7 @@ namespace mp::vector {
     ---------------------------------
     Computes the scalar dot product of two vectors.
     Vector multiplication a * b is deliberately defined as dot(a, b).
-    Use comp_mul(a, b) for component-wise multiplication.
+    Use cmul(a, b) for component-wise multiplication.
 
     The result has the vector's component type.
     */
@@ -814,75 +814,52 @@ namespace mp::vector {
     */
     template<typename T>
     constexpr std::size_t cmin_index(const Vec2<T>& v) {
-        std::size_t idx = 0;
-
-        for(std::size_t i = 1; i < 2; ++i) {
-            if(v[i] < v[idx])
-                idx = i;
-        }
-
-        return idx;
+        return v.x < v.y ? 0 : 1;
     }
 
     template<typename T>
     constexpr std::size_t cmin_index(const Vec3<T>& v) {
-        std::size_t idx = 0;
-
-        for(std::size_t i = 1; i < 3; ++i) {
-            if(v[i] < v[idx])
-                idx = i;
-        }
-
+        std::size_t idx = v.x < v.y ? 0 : 1;
+        if (v.z < (idx == 0 ? v.x : v.y))
+            idx = 2;
         return idx;
     }
 
     template<typename T>
     constexpr std::size_t cmin_index(const Vec4<T>& v) {
-        std::size_t idx = 0;
-
-        for(std::size_t i = 1; i < 4; ++i) {
-            if(v[i] < v[idx])
-                idx = i;
-        }
-
+        std::size_t idx = v.x < v.y ? 0 : 1;
+        if (v.z < (idx == 0 ? v.x : v.y))
+            idx = 2;
+        if (v.w < (idx == 0 ? v.x : (idx == 1 ? v.y : v.z)))
+            idx = 3;
         return idx;
     }
 
     template<typename T>
     constexpr std::size_t cmax_index(const Vec2<T>& v) {
-        std::size_t idx = 0;
-
-        for(std::size_t i = 1; i < 2; ++i) {
-            if(v[i] > v[idx])
-                idx = i;
-        }
-
-        return idx;
+        return v.x > v.y ? 0 : 1;
     }
 
     template<typename T>
     constexpr std::size_t cmax_index(const Vec3<T>& v) {
-        std::size_t idx = 0;
-
-        for(std::size_t i = 1; i < 3; ++i) {
-            if(v[i] > v[idx])
-                idx = i;
-        }
-
+        std::size_t idx = v.x > v.y ? 0 : 1;
+        if (v.z > (idx == 0 ? v.x : v.y))
+            idx = 2;
         return idx;
     }
 
     template<typename T>
     constexpr std::size_t cmax_index(const Vec4<T>& v) {
-        std::size_t idx = 0;
-
-        for(std::size_t i = 1; i < 4; ++i) {
-            if(v[i] > v[idx])
-                idx = i;
-        }
-
+        std::size_t idx = v.x > v.y ? 0 : 1;
+        if (v.z > (idx == 0 ? v.x : v.y))
+            idx = 2;
+        if (v.w > (idx == 0 ? v.x : (idx == 1 ? v.y : v.z)))
+            idx = 3;
         return idx;
     }
+
+
+
 
     /*
     ---------------------------------
