@@ -266,11 +266,11 @@ namespace mp::vector {
     The vector expression a * b computes the dot product instead.
     */
     template<typename T>
-    constexpr Vec2<T> comp_mul(const Vec2<T>& a, const Vec2<T>& b) { return {a.x * b.x, a.y * b.y}; }
+    constexpr Vec2<T> cmul(const Vec2<T>& a, const Vec2<T>& b) { return {a.x * b.x, a.y * b.y}; }
     template<typename T>
-    constexpr Vec3<T> comp_mul(const Vec3<T>& a, const Vec3<T>& b) { return {a.x * b.x, a.y * b.y, a.z * b.z}; }
+    constexpr Vec3<T> cmul(const Vec3<T>& a, const Vec3<T>& b) { return {a.x * b.x, a.y * b.y, a.z * b.z}; }
     template<typename T>
-    constexpr Vec4<T> comp_mul(const Vec4<T>& a, const Vec4<T>& b) { return {a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w}; }
+    constexpr Vec4<T> cmul(const Vec4<T>& a, const Vec4<T>& b) { return {a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w}; }
 
     /*
     ---------------------------------
@@ -302,6 +302,21 @@ namespace mp::vector {
     constexpr Vec4<T> operator/(const Vec4<T>& v, T s) { return div(v, s); }
     template<typename T>
     constexpr Vec4<T>& operator/=(Vec4<T>& v, T s) { v.x /= s; v.y /= s; v.z /= s; v.w /= s; return v; }
+
+    /*
+    ---------------------------------
+                COMPONENT-WISE DIVISION
+    ---------------------------------
+    Computes the component-wise division of two vectors.
+    Integer components use integer division, truncating toward zero.
+    The result retains the vector's component type.
+    */
+    template<typename T>
+    constexpr Vec2<T> cdiv(const Vec2<T>& a, const Vec2<T>& b) { return {a.x / b.x, a.y / b.y}; }
+    template<typename T>
+    constexpr Vec3<T> cdiv(const Vec3<T>& a, const Vec3<T>& b) { return {a.x / b.x, a.y / b.y, a.z / b.z}; }
+    template<typename T>
+    constexpr Vec4<T> cdiv(const Vec4<T>& a, const Vec4<T>& b) { return {a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w}; }
 
     /*
     ---------------------------------
@@ -429,6 +444,25 @@ namespace mp::vector {
         return !(a == b);
     }
 
+    /*
+    ---------------------------------
+          IS ZERO
+    ---------------------------------
+    Checks if a vector has zero length (all components are zero).
+    */
+    template<typename T>
+    constexpr bool is_zero(const Vec2<T>& v) {
+        return v.x == T(0) && v.y == T(0);
+    }
+    template<typename T>
+    constexpr bool is_zero(const Vec3<T>& v) {
+        return v.x == T(0) && v.y == T(0) && v.z == T(0);
+    }
+    template<typename T>
+    constexpr bool is_zero(const Vec4<T>& v) {
+        return v.x == T(0) && v.y == T(0) && v.z == T(0) && v.w == T(0);
+    }
+
 
     /*
     ---------------------------------
@@ -513,6 +547,96 @@ namespace mp::vector {
     constexpr Vec3<T> operator-(const Vec3<T>& v) { return {-v.x, -v.y, -v.z}; }
     template<typename T>
     constexpr Vec4<T> operator-(const Vec4<T>& v) { return {-v.x, -v.y, -v.z, -v.w}; }
+
+    /* 
+    ---------------------------------
+              COMPONENT-WISE MIN/MAX
+    ---------------------------------
+    Computes the component-wise minimum and maximum of two vectors.
+    The result retains the vector's component type.
+    */
+    template<typename T>
+    constexpr Vec2<T> cmin(const Vec2<T>& a, const Vec2<T>& b) {
+        return {
+            b.x < a.x ? b.x : a.x,
+            b.y < a.y ? b.y : a.y
+        }; 
+    }
+    template<typename T>
+    constexpr Vec3<T> cmin(const Vec3<T>& a, const Vec3<T>& b) {
+        return {
+            b.x < a.x ? b.x : a.x,
+            b.y < a.y ? b.y : a.y,
+            b.z < a.z ? b.z : a.z
+        };
+    }
+    template<typename T>
+    constexpr Vec4<T> cmin(const Vec4<T>& a, const Vec4<T>& b) {
+        return {
+            b.x < a.x ? b.x : a.x,
+            b.y < a.y ? b.y : a.y,
+            b.z < a.z ? b.z : a.z,
+            b.w < a.w ? b.w : a.w
+        };
+    }
+
+    template<typename T>
+    constexpr Vec2<T> cmax(const Vec2<T>& a, const Vec2<T>& b) {
+        return {
+            b.x > a.x ? b.x : a.x,
+            b.y > a.y ? b.y : a.y
+        };
+    }
+    template<typename T>
+    constexpr Vec3<T> cmax(const Vec3<T>& a, const Vec3<T>& b) {
+        return {
+            b.x > a.x ? b.x : a.x,
+            b.y > a.y ? b.y : a.y,
+            b.z > a.z ? b.z : a.z
+        };
+    }
+    template<typename T>
+    constexpr Vec4<T> cmax(const Vec4<T>& a, const Vec4<T>& b) {
+        return {
+            b.x > a.x ? b.x : a.x,
+            b.y > a.y ? b.y : a.y,
+            b.z > a.z ? b.z : a.z,
+            b.w > a.w ? b.w : a.w
+        };
+    }
+
+    /*
+    -------------------------------
+                COMPONENT-WISE ABS
+    ---------------------------------
+    Computes the component-wise absolute value of a vector.
+    The result retains the vector's component type.
+    */
+    template<typename T>
+    constexpr Vec2<T> cabs(const Vec2<T>& v) { 
+        return {
+            v.x < T{0} ? -v.x : v.x, 
+            v.y < T{0} ? -v.y : v.y
+        }; 
+    }
+    template<typename T>
+    constexpr Vec3<T> cabs(const Vec3<T>& v) {
+        return {
+            v.x < T{0} ? -v.x : v.x,
+            v.y < T{0} ? -v.y : v.y,
+            v.z < T{0} ? -v.z : v.z
+        };
+    }
+    template<typename T>
+    constexpr Vec4<T> cabs(const Vec4<T>& v) { 
+        return {
+            v.x < T{0} ? -v.x : v.x,
+            v.y < T{0} ? -v.y : v.y,
+            v.z < T{0} ? -v.z : v.z,
+            v.w < T{0} ? -v.w : v.w
+        };
+    }
+
 
     /*
     ---------------------------------
@@ -612,6 +736,152 @@ namespace mp::vector {
         };
 
         return n.x * n.x + n.y * n.y + n.z * n.z + n.w * n.w;
+    }
+
+    /* 
+    ---------------------------------
+              COMPONENT REDUCTION
+    ---------------------------------
+    csum() returns the sum of all components of a vector.
+    Returns the sum as the same type as the vector components.
+
+    cmin() returns the minimum component of a vector.
+    Return value has same type as the vector components.
+
+    cmax() returns the maximum component of a vector.
+    Return value has same type as the vector components.
+    */
+    template<typename T>
+    constexpr T csum(const Vec2<T>& v) {
+        return v.x + v.y;
+    }
+
+    template<typename T>
+    constexpr T csum(const Vec3<T>& v) {
+        return v.x + v.y + v.z;
+    }
+
+    template<typename T>
+    constexpr T csum(const Vec4<T>& v) {
+        return v.x + v.y + v.z + v.w;
+    }
+
+    template<typename T>
+    constexpr T cmin(const Vec2<T>& v) {
+        return v.x < v.y ? v.x : v.y;
+    }
+
+    template<typename T>
+    constexpr T cmin(const Vec3<T>& v) {
+        T m = v.x < v.y ? v.x : v.y;
+        return m < v.z ? m : v.z;
+    }
+
+    template<typename T>
+    constexpr T cmin(const Vec4<T>& v) {
+        T m = v.x < v.y ? v.x : v.y;
+        m = m < v.z ? m : v.z;
+        return m < v.w ? m : v.w;
+    }
+
+    template<typename T>
+    constexpr T cmax(const Vec2<T>& v) {
+        return v.x > v.y ? v.x : v.y;
+    }
+
+    template<typename T>
+    constexpr T cmax(const Vec3<T>& v) {
+        T m = v.x > v.y ? v.x : v.y;
+        return m > v.z ? m : v.z;
+    }
+
+    template<typename T>
+    constexpr T cmax(const Vec4<T>& v) {
+        T m = v.x > v.y ? v.x : v.y;
+        m = m > v.z ? m : v.z;
+        return m > v.w ? m : v.w;
+    }
+
+    /*
+    ---------------------------------
+              COMPONENT MIN/MAX INDEX
+    ---------------------------------
+    cmin_index() returns the index of the minimum component of a vector.
+    cmax_index() returns the index of the maximum component of a vector.
+    If multiple components share the minimum or maximum value,
+    the index of the first occurrence is returned.
+    The return type is std::size_t.
+    */
+    template<typename T>
+    constexpr std::size_t cmin_index(const Vec2<T>& v) {
+        std::size_t idx = 0;
+
+        for(std::size_t i = 1; i < 2; ++i) {
+            if(v[i] < v[idx])
+                idx = i;
+        }
+
+        return idx;
+    }
+
+    template<typename T>
+    constexpr std::size_t cmin_index(const Vec3<T>& v) {
+        std::size_t idx = 0;
+
+        for(std::size_t i = 1; i < 3; ++i) {
+            if(v[i] < v[idx])
+                idx = i;
+        }
+
+        return idx;
+    }
+
+    template<typename T>
+    constexpr std::size_t cmin_index(const Vec4<T>& v) {
+        std::size_t idx = 0;
+
+        for(std::size_t i = 1; i < 4; ++i) {
+            if(v[i] < v[idx])
+                idx = i;
+        }
+
+        return idx;
+    }
+
+    template<typename T>
+    constexpr std::size_t cmax_index(const Vec2<T>& v) {
+        std::size_t idx = 0;
+
+        for(std::size_t i = 1; i < 2; ++i) {
+            if(v[i] > v[idx])
+                idx = i;
+        }
+
+        return idx;
+    }
+
+    template<typename T>
+    constexpr std::size_t cmax_index(const Vec3<T>& v) {
+        std::size_t idx = 0;
+
+        for(std::size_t i = 1; i < 3; ++i) {
+            if(v[i] > v[idx])
+                idx = i;
+        }
+
+        return idx;
+    }
+
+    template<typename T>
+    constexpr std::size_t cmax_index(const Vec4<T>& v) {
+        std::size_t idx = 0;
+
+        for(std::size_t i = 1; i < 4; ++i) {
+            if(v[i] > v[idx])
+                idx = i;
+        }
+
+        return idx;
     }
 
     /*
@@ -799,5 +1069,41 @@ namespace mp::vector {
                 static_cast<R>(b.z) - static_cast<R>(a.z), 
                 static_cast<R>(b.w) - static_cast<R>(a.w)});
     }
+
+    /*
+    ---------------------------------
+            VECTOR CLAMPING
+    ---------------------------------
+    Clamps each component of a vector between the corresponding components of the minimum and maximum vectors.
+    If scalar minimum and maximum values are provided, all components are clamped between these values.
+    Each minimum bound must be <= its corresponding maximum bound.
+    */
+    template<typename T>
+    constexpr Vec2<T> clamp(const Vec2<T>& v, const Vec2<T>& minVec, const Vec2<T>& maxVec) {
+        return cmin(cmax(v, minVec), maxVec);
+    }
+    template<typename T>
+    constexpr Vec2<T> clamp(const Vec2<T>& v, T minScal, T maxScal) {
+        return clamp(v, Vec2<T>{minScal, minScal}, Vec2<T>{maxScal, maxScal});
+    }
+
+    template<typename T>
+    constexpr Vec3<T> clamp(const Vec3<T>& v, const Vec3<T>& minVec, const Vec3<T>& maxVec) {
+        return cmin(cmax(v, minVec), maxVec);
+    }
+    template<typename T>
+    constexpr Vec3<T> clamp(const Vec3<T>& v, T minScal, T maxScal) {
+        return clamp(v, Vec3<T>{minScal, minScal, minScal}, Vec3<T>{maxScal, maxScal, maxScal});
+    }
+
+    template<typename T>
+    constexpr Vec4<T> clamp(const Vec4<T>& v, const Vec4<T>& minVec, const Vec4<T>& maxVec) {
+        return cmin(cmax(v, minVec), maxVec);
+    }
+    template<typename T>
+    constexpr Vec4<T> clamp(const Vec4<T>& v, T minScal, T maxScal) {
+        return clamp(v, Vec4<T>{minScal, minScal, minScal, minScal}, Vec4<T>{maxScal, maxScal, maxScal, maxScal});
+    }
+
 
 } // namespace mp::vector
