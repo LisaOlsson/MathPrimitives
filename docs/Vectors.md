@@ -34,39 +34,47 @@ Exceptions exists for certain values like `e` for epsilon.
 
 `add(a, b)`
 Addition adds the vectors `a` and `b`, operations `+` and `+=` can also be used.
+Returns a vector of the same type as the input-vectors.
 
 ### Subtraction
 
 `sub(a, b)`
 Subtracts vector `b` from vector `a`, operations `-` and `-=` can also be used.
+Returns a vector of the same type as the input-vectors.
 
 ### Scale
 
-`scale(a, s)`
-Scales `a` by the factor `s`, operations `*` and `*=` can also be used.
+`scale(v, s)`
+Scales `v` by the factor `s`, operations `*` and `*=` can also be used.
 Please note that `*` between two vectors calculates the dot product, see more under heading `dot product`.
+Returns a vector of the same type as the input vector `v`.
 
 ### Component-wise multiplication
 
 `cmul(a, b)`
 Multiplies the corresponding vector components with each other. I.e. `a.x * b.x` and so on.
+Returns a vector of the same type as the input-vectors.
 
 ### Division
 
-`div(a, s)`
-Divides `a` by `s`, operations `/` and `/=` can also be used.
+`div(v, s)`
+Divides `v` by `s`, operations `/` and `/=` can also be used.
+Returns a vector of the same type as the input vector `v`.
 
 ### Component-wise Division
 
 `cdiv(a, b)`
 Divides the `a` vector component with the corresponding `b` vector component. I.e. `a.x / b.x` and so on.
+Returns a vector of the same type as the input-vectors.
 
 ### Modulo
 
 `mod(v, s)`
 Computes the remainder of each component after division by `s`. Operations `%` and `%=` can also be used.
+Returns a vector of the same type as the input vector `v`.
 
 ### Component-wise modulo
 
 `cmod(a, b)`
 Computes the component-wise remainder after division of components, i.e. `a.x % b.x`. Operations `%` and `%=` can also be used.
+Returns a vector of the same type as the input-vectors.

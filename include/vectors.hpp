@@ -812,6 +812,7 @@ namespace mp::vector {
 
     Integer components are converted to double before calculation, and the result has double components.
     Floating-point vectors retain their component type.
+    max_length must be non-negative.
     */
     template<typename T>
     constexpr Vec2<std::conditional_t<std::is_integral_v<T>, double, T>>  
