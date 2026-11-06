@@ -810,9 +810,11 @@ namespace mp::vector {
     If the vector's length exceeds the maximum, it is scaled down to the maximum length.
     Otherwise, the vector remains unchanged.
 
+    Overloaded clamp_length takes both minimum and maximum lengths, clamping the vector's length within the specified range.
+
     Integer components are converted to double before calculation, and the result has double components.
     Floating-point vectors retain their component type.
-    max_length must be non-negative.
+    max_length and min_length must be non-negative.
     */
     template<typename T>
     constexpr Vec2<std::conditional_t<std::is_integral_v<T>, double, T>>  
@@ -832,6 +834,33 @@ namespace mp::vector {
         if (len_sq > max_len * max_len) {
             R len = std::sqrt(len_sq);
             return n * (max_len / len);
+        }
+        return n;
+    }
+
+    template<typename T>
+    constexpr Vec2<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    clamp_length(const Vec2<T>& v, T min_length, T max_length) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        assert(min_length >= T{0});
+        assert(max_length >= T{0});
+
+        Vec2<R> n{
+            static_cast<R>(v.x),
+            static_cast<R>(v.y)
+        };
+
+        R min_len = static_cast<R>(min_length);
+        R max_len = static_cast<R>(max_length);
+        R len_sq = length_squared(n);
+
+        if (len_sq > max_len * max_len) {
+            R len = std::sqrt(len_sq);
+            return n * (max_len / len);
+        } else if (len_sq < min_len * min_len) {
+            R len = std::sqrt(len_sq);
+            return n * (min_len / len);
         }
         return n;
     }
@@ -858,6 +887,33 @@ namespace mp::vector {
         }
         return n;
     }
+    template<typename T>
+    constexpr Vec3<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    clamp_length(const Vec3<T>& v, T min_length, T max_length) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        assert(min_length >= T{0});
+        assert(max_length >= T{0});
+
+        Vec3<R> n{
+            static_cast<R>(v.x),
+            static_cast<R>(v.y),
+            static_cast<R>(v.z)
+        };
+
+        R min_len = static_cast<R>(min_length);
+        R max_len = static_cast<R>(max_length);
+        R len_sq = length_squared(n);
+
+        if (len_sq > max_len * max_len) {
+            R len = std::sqrt(len_sq);
+            return n * (max_len / len);
+        } else if (len_sq < min_len * min_len) {
+            R len = std::sqrt(len_sq);
+            return n * (min_len / len);
+        }
+        return n;
+    }
 
     template<typename T>
     constexpr Vec4<std::conditional_t<std::is_integral_v<T>, double, T>> 
@@ -879,6 +935,35 @@ namespace mp::vector {
         if (len_sq > max_len * max_len) {
             R len = std::sqrt(len_sq);
             return n * (max_len / len);
+        }
+        return n;
+    }
+
+    template<typename T>
+    constexpr Vec4<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    clamp_length(const Vec4<T>& v, T min_length, T max_length) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        assert(min_length >= T{0});
+        assert(max_length >= T{0});
+
+        Vec4<R> n{
+            static_cast<R>(v.x),
+            static_cast<R>(v.y),
+            static_cast<R>(v.z),
+            static_cast<R>(v.w)
+        };
+
+        R min_len = static_cast<R>(min_length);
+        R max_len = static_cast<R>(max_length);
+        R len_sq = length_squared(n);
+
+        if (len_sq > max_len * max_len) {
+            R len = std::sqrt(len_sq);
+            return n * (max_len / len);
+        } else if (len_sq < min_len * min_len) {
+            R len = std::sqrt(len_sq);
+            return n * (min_len / len);
         }
         return n;
     }
