@@ -815,6 +815,7 @@ namespace mp::vector {
     Integer components are converted to double before calculation, and the result has double components.
     Floating-point vectors retain their component type.
     max_length and min_length must be non-negative.
+    If the vector is zero, it remains zero regardless of the minimum length.
     */
     template<typename T>
     constexpr Vec2<std::conditional_t<std::is_integral_v<T>, double, T>>  
@@ -845,6 +846,11 @@ namespace mp::vector {
 
         assert(min_length >= T{0});
         assert(max_length >= T{0});
+        assert(max_length >= min_length);
+
+        if(is_zero(v)) {
+            return v;
+        }
 
         Vec2<R> n{
             static_cast<R>(v.x),
@@ -894,6 +900,11 @@ namespace mp::vector {
 
         assert(min_length >= T{0});
         assert(max_length >= T{0});
+        assert(max_length >= min_length);
+
+        if(is_zero(v)) {
+            return v;
+        }
 
         Vec3<R> n{
             static_cast<R>(v.x),
@@ -946,6 +957,11 @@ namespace mp::vector {
 
         assert(min_length >= T{0});
         assert(max_length >= T{0});
+        assert(max_length >= min_length);
+
+        if(is_zero(v)) {
+            return v;
+        }
 
         Vec4<R> n{
             static_cast<R>(v.x),
