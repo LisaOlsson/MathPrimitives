@@ -328,6 +328,7 @@ namespace mp::vector {
     Uses % for integer components and std::fmod for floating-point components.
     The scalar must match the vector's component type.
     Negative components can produce negative remainders.
+    Divisor components must be non-zero.
     */
     template<typename T>
     inline  Vec2<T> mod(const Vec2<T>& v, T s) {
@@ -377,6 +378,69 @@ namespace mp::vector {
     template<typename T>
     inline Vec4<T>& operator%=(Vec4<T>& v, T s) {
         v = mod(v, s);
+        return v;
+    }
+
+    /*
+    ---------------------------------
+                Component-wise modulo
+    ---------------------------------
+    Computes the remainder of each component after division by the corresponding component of another vector.
+    Supports v % u and v %= u.
+
+    Uses % for integer components and std::fmod for floating-point components.
+    The vectors must have the same component type.
+    Negative components can produce negative remainders.
+    Divisor components must be non-zero.
+    */
+    template<typename T>
+    inline Vec2<T> cmod(const Vec2<T>& v, const Vec2<T>& u) {
+        if constexpr (std::is_integral_v<T>) {
+            return {v.x % u.x, v.y % u.y};
+        }
+        else {
+            return {std::fmod(v.x, u.x), std::fmod(v.y, u.y)};
+        }
+    }
+    template<typename T>
+    inline Vec2<T> operator%(const Vec2<T>& v, const Vec2<T>& u) { return cmod(v, u); }
+    template<typename T>
+    inline Vec2<T>& operator%=(Vec2<T>& v, const Vec2<T>& u) {
+        v = cmod(v, u);
+        return v;
+    }
+
+    template<typename T>
+    inline Vec3<T> cmod(const Vec3<T>& v, const Vec3<T>& u) {
+        if constexpr (std::is_integral_v<T>) {
+            return {v.x % u.x, v.y % u.y, v.z % u.z};
+        }
+        else {
+            return {std::fmod(v.x, u.x), std::fmod(v.y, u.y), std::fmod(v.z, u.z)};
+        }
+    }
+    template<typename T>
+    inline Vec3<T> operator%(const Vec3<T>& v, const Vec3<T>& u) { return cmod(v, u); }
+    template<typename T>
+    inline Vec3<T>& operator%=(Vec3<T>& v, const Vec3<T>& u) {
+        v = cmod(v, u);
+        return v;
+    }
+
+    template<typename T>
+    inline Vec4<T> cmod(const Vec4<T>& v, const Vec4<T>& u) {
+        if constexpr (std::is_integral_v<T>) {
+            return {v.x % u.x, v.y % u.y, v.z % u.z, v.w % u.w};
+        }
+        else {
+            return {std::fmod(v.x, u.x), std::fmod(v.y, u.y), std::fmod(v.z, u.z), std::fmod(v.w, u.w)};
+        }
+    }
+    template<typename T>
+    inline Vec4<T> operator%(const Vec4<T>& v, const Vec4<T>& u) { return cmod(v, u); }
+    template<typename T>
+    inline Vec4<T>& operator%=(Vec4<T>& v, const Vec4<T>& u) {
+        v = cmod(v, u);
         return v;
     }
 
@@ -738,6 +802,86 @@ namespace mp::vector {
         return n.x * n.x + n.y * n.y + n.z * n.z + n.w * n.w;
     }
 
+    /*
+    ---------------------------------
+              CLAMP LENGTH
+    ---------------------------------
+    Clamps the length of a vector to a specified maximum.
+    If the vector's length exceeds the maximum, it is scaled down to the maximum length.
+    Otherwise, the vector remains unchanged.
+
+    Integer components are converted to double before calculation, and the result has double components.
+    Floating-point vectors retain their component type.
+    */
+    template<typename T>
+    constexpr Vec2<std::conditional_t<std::is_integral_v<T>, double, T>>  
+    clamp_length(const Vec2<T>& v, T max_length) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        assert(max_length >= T{0});
+
+        Vec2<R> n{
+            static_cast<R>(v.x),
+            static_cast<R>(v.y)
+        };
+
+        R max_len = static_cast<R>(max_length);
+        R len_sq = length_squared(n);
+
+        if (len_sq > max_len * max_len) {
+            R len = std::sqrt(len_sq);
+            return n * (max_len / len);
+        }
+        return n;
+    }
+
+    template<typename T>
+    constexpr Vec3<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    clamp_length(const Vec3<T>& v, T max_length) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        assert(max_length >= T{0});
+
+        R max_len = static_cast<R>(max_length);
+        Vec3<R> n{
+            static_cast<R>(v.x),
+            static_cast<R>(v.y),
+            static_cast<R>(v.z)
+        };
+
+        R len_sq = length_squared(n);
+
+        if (len_sq > max_len * max_len) {
+            R len = std::sqrt(len_sq);
+            return n * (max_len / len);
+        }
+        return n;
+    }
+
+    template<typename T>
+    constexpr Vec4<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    clamp_length(const Vec4<T>& v, T max_length) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        assert(max_length >= T{0});
+
+        R max_len = static_cast<R>(max_length);
+        Vec4<R> n{
+            static_cast<R>(v.x),
+            static_cast<R>(v.y),
+            static_cast<R>(v.z),
+            static_cast<R>(v.w)
+        };
+
+        R len_sq = length_squared(n);
+
+        if (len_sq > max_len * max_len) {
+            R len = std::sqrt(len_sq);
+            return n * (max_len / len);
+        }
+        return n;
+    }
+
     /* 
     ---------------------------------
               COMPONENT REDUCTION
@@ -745,10 +889,10 @@ namespace mp::vector {
     csum() returns the sum of all components of a vector.
     Returns the sum as the same type as the vector components.
 
-    cmin() returns the minimum component of a vector.
+    cmin() returns the minimum scalar component of a vector.
     Return value has same type as the vector components.
 
-    cmax() returns the maximum component of a vector.
+    cmax() returns the maximum scalar component of a vector.
     Return value has same type as the vector components.
     */
     template<typename T>
@@ -814,12 +958,12 @@ namespace mp::vector {
     */
     template<typename T>
     constexpr std::size_t cmin_index(const Vec2<T>& v) {
-        return v.x < v.y ? 0 : 1;
+        return v.x <= v.y ? 0 : 1;
     }
 
     template<typename T>
     constexpr std::size_t cmin_index(const Vec3<T>& v) {
-        std::size_t idx = v.x < v.y ? 0 : 1;
+        std::size_t idx = v.x <= v.y ? 0 : 1;
         if (v.z < (idx == 0 ? v.x : v.y))
             idx = 2;
         return idx;
@@ -827,7 +971,7 @@ namespace mp::vector {
 
     template<typename T>
     constexpr std::size_t cmin_index(const Vec4<T>& v) {
-        std::size_t idx = v.x < v.y ? 0 : 1;
+        std::size_t idx = v.x <= v.y ? 0 : 1;
         if (v.z < (idx == 0 ? v.x : v.y))
             idx = 2;
         if (v.w < (idx == 0 ? v.x : (idx == 1 ? v.y : v.z)))
@@ -837,12 +981,12 @@ namespace mp::vector {
 
     template<typename T>
     constexpr std::size_t cmax_index(const Vec2<T>& v) {
-        return v.x > v.y ? 0 : 1;
+        return v.x >= v.y ? 0 : 1;
     }
 
     template<typename T>
     constexpr std::size_t cmax_index(const Vec3<T>& v) {
-        std::size_t idx = v.x > v.y ? 0 : 1;
+        std::size_t idx = v.x >= v.y ? 0 : 1;
         if (v.z > (idx == 0 ? v.x : v.y))
             idx = 2;
         return idx;
@@ -850,7 +994,7 @@ namespace mp::vector {
 
     template<typename T>
     constexpr std::size_t cmax_index(const Vec4<T>& v) {
-        std::size_t idx = v.x > v.y ? 0 : 1;
+        std::size_t idx = v.x >= v.y ? 0 : 1;
         if (v.z > (idx == 0 ? v.x : v.y))
             idx = 2;
         if (v.w > (idx == 0 ? v.x : (idx == 1 ? v.y : v.z)))
@@ -1082,5 +1226,305 @@ namespace mp::vector {
         return clamp(v, Vec4<T>{minScal, minScal, minScal, minScal}, Vec4<T>{maxScal, maxScal, maxScal, maxScal});
     }
 
+    /*
+    ---------------------------------
+            VECTOR ANGLE
+    ---------------------------------
+    Computes the angle between two vectors in radians.
+    If one of the vectors is zero, the angle is defined as 0.
+    */
+    template<typename T>
+    inline std::conditional_t<std::is_integral_v<T>, double, T>
+    angle(const Vec2<T>& a, const Vec2<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        if (is_zero(a) || is_zero(b)) return static_cast<R>(0);
+
+        R dot_product =
+            static_cast<R>(a.x) * static_cast<R>(b.x) +
+            static_cast<R>(a.y) * static_cast<R>(b.y);
+        R len_a = length(a);
+        R len_b = length(b);
+
+        R cosine = dot_product / (len_a * len_b);
+        cosine = cosine < R{-1} ? R{-1} : cosine > R{1} ? R{1} : cosine;
+
+        return std::acos(cosine);
+    }
+
+    template<typename T>
+    inline std::conditional_t<std::is_integral_v<T>, double, T>
+    angle(const Vec3<T>& a, const Vec3<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        if (is_zero(a) || is_zero(b)) 
+            return static_cast<R>(0);
+
+        R dot_product =
+            static_cast<R>(a.x) * static_cast<R>(b.x) +
+            static_cast<R>(a.y) * static_cast<R>(b.y) +
+            static_cast<R>(a.z) * static_cast<R>(b.z);
+        R len_a = length(a);
+        R len_b = length(b);
+
+        R cosine = dot_product / (len_a * len_b);
+        cosine = cosine < R{-1} ? R{-1} : cosine > R{1} ? R{1} : cosine;
+
+        return std::acos(cosine);
+    }
+
+    template<typename T>
+    inline std::conditional_t<std::is_integral_v<T>, double, T>
+    angle(const Vec4<T>& a, const Vec4<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        if (is_zero(a) || is_zero(b)) return static_cast<R>(0);
+
+        R dot_product =
+            static_cast<R>(a.x) * static_cast<R>(b.x) +
+            static_cast<R>(a.y) * static_cast<R>(b.y) +
+            static_cast<R>(a.z) * static_cast<R>(b.z) +
+            static_cast<R>(a.w) * static_cast<R>(b.w);
+        R len_a = length(a);
+        R len_b = length(b);
+
+        R cosine = dot_product / (len_a * len_b);
+        cosine = cosine < R{-1} ? R{-1} : cosine > R{1} ? R{1} : cosine;
+
+        return std::acos(cosine);
+    }
+
+    /*
+    ---------------------------------
+            2D VECTOR ANGLE
+    ---------------------------------
+    Computes the angle of a 2D vector in radians relative to the positive x-axis.
+    If the vector is zero, the angle is defined as 0.
+    */
+    template<typename T>
+    inline std::conditional_t<std::is_integral_v<T>, double, T>
+    angle(const Vec2<T>& v) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        if (is_zero(v)) return static_cast<R>(0);
+
+        return std::atan2(static_cast<R>(v.y), static_cast<R>(v.x));
+    }
+
+    /*
+    ---------------------------------
+            VECTOR PROJECTION
+    ---------------------------------
+    Computes the projection of vector a onto vector b.
+    If vector b is zero, the projection is defined as the zero vector.
+    */
+    template<typename T>
+    inline Vec2<std::conditional_t<std::is_integral_v<T>, double, T>>  
+    project(const Vec2<T>& a, const Vec2<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        if (is_zero(b)) return Vec2<R>{0, 0};
+
+        Vec2<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y)
+        };
+        Vec2<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y)
+        };
+    
+        R scale = dot(ar, br) / dot(br, br);
+
+        return br * scale;
+    }
+    
+    template<typename T>
+    inline Vec3<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    project(const Vec3<T>& a, const Vec3<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        if (is_zero(b)) return Vec3<R>{0, 0, 0};
+
+        Vec3<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y),
+            static_cast<R>(a.z)
+        };
+        Vec3<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y),
+            static_cast<R>(b.z)
+        };
+
+        R scale = dot(ar, br) / dot(br, br);
+
+        return br * scale;
+    }
+    
+    template<typename T>
+    inline Vec4<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    project(const Vec4<T>& a, const Vec4<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        if (is_zero(b)) return Vec4<R>{0, 0, 0, 0};
+
+        Vec4<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y),
+            static_cast<R>(a.z),
+            static_cast<R>(a.w)
+        };
+        Vec4<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y),
+            static_cast<R>(b.z),
+            static_cast<R>(b.w)
+        };
+
+        R scale = dot(ar, br) / dot(br, br);
+
+        return br * scale;
+    }
+
+    /*
+    ---------------------------------
+            SCALAR VECTOR PROJECTION
+    ---------------------------------
+    Computes the scalar projection of vector a onto vector b.
+    If vector b is zero, the scalar projection is defined as 0.
+    */
+    template<typename T>
+    inline std::conditional_t<std::is_integral_v<T>, double, T> 
+    scalar_project(const Vec2<T>& a, const Vec2<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        if (is_zero(b)) return static_cast<R>(0);
+
+        Vec2<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y)
+        };
+        Vec2<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y)
+        };
+
+        return dot(ar, br) / length(br);
+    }
+
+    template<typename T>
+    inline std::conditional_t<std::is_integral_v<T>, double, T> 
+    scalar_project(const Vec3<T>& a, const Vec3<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        if (is_zero(b)) return static_cast<R>(0);
+
+        Vec3<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y),
+            static_cast<R>(a.z)
+        };
+        Vec3<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y),
+            static_cast<R>(b.z)
+        };
+
+        return dot(ar, br) / length(br);
+    }
+
+    template<typename T>
+    inline std::conditional_t<std::is_integral_v<T>, double, T> 
+    scalar_project(const Vec4<T>& a, const Vec4<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        if (is_zero(b)) return static_cast<R>(0);
+
+        Vec4<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y),
+            static_cast<R>(a.z),
+            static_cast<R>(a.w)
+        };
+        Vec4<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y),
+            static_cast<R>(b.z),
+            static_cast<R>(b.w)
+        };
+
+        return dot(ar, br) / length(br);
+    }
+
+    /*
+    ---------------------------------
+            VECTOR REJECTION
+    ---------------------------------
+    Computes the vector rejection of vector a from vector b.
+    If vector b is zero, the rejection is defined as a.
+    */
+    template<typename T>
+    inline Vec2<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    reject(const Vec2<T>& a, const Vec2<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec2<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y)
+        };
+        Vec2<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y)
+        };
+
+        if (is_zero(b)) return ar;
+
+        return ar - project(ar, br);
+    }
+
+    template<typename T>
+    inline Vec3<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    reject(const Vec3<T>& a, const Vec3<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec3<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y),
+            static_cast<R>(a.z)
+        };
+        Vec3<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y),
+            static_cast<R>(b.z)
+        };
+
+        if (is_zero(b)) return ar;
+
+        return ar - project(ar, br);
+    }
+
+    template<typename T>
+    inline Vec4<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    reject(const Vec4<T>& a, const Vec4<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec4<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y),
+            static_cast<R>(a.z),
+            static_cast<R>(a.w)
+        };
+        Vec4<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y),
+            static_cast<R>(b.z),
+            static_cast<R>(b.w)
+        };
+
+        if (is_zero(b)) return ar;
+
+        return ar - project(ar, br);
+    }
 
 } // namespace mp::vector
