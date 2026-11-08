@@ -59,6 +59,20 @@ namespace mp::vector {
                 default: throw std::out_of_range("Vec2 index out of range");
             }        
         }
+
+        static const Vec2 ZERO;
+        static const Vec2 ONE;
+        static const Vec2 NEG_ONE;
+
+        static const Vec2 X;
+        static const Vec2 Y;
+        static const Vec2 NEG_X;
+        static const Vec2 NEG_Y;
+
+        static const Vec2 RIGHT;
+        static const Vec2 LEFT;
+        static const Vec2 UP;
+        static const Vec2 DOWN;
     };
 
     template<typename T>
@@ -102,6 +116,24 @@ namespace mp::vector {
                 default: throw std::out_of_range("Vec3 index out of range");
             }        
         }
+
+        static const Vec3 ZERO;
+        static const Vec3 ONE;
+        static const Vec3 NEG_ONE;
+
+        static const Vec3 X;
+        static const Vec3 Y;
+        static const Vec3 Z;
+        static const Vec3 NEG_X;
+        static const Vec3 NEG_Y;
+        static const Vec3 NEG_Z;
+
+        static const Vec3 RIGHT;
+        static const Vec3 LEFT;
+        static const Vec3 UP;
+        static const Vec3 DOWN;
+        static const Vec3 FORWARD;
+        static const Vec3 BACK;
     };
 
     template<typename T>
@@ -149,6 +181,20 @@ namespace mp::vector {
                 default: throw std::out_of_range("Vec4 index out of range");
             }        
         }
+
+        static const Vec4 ZERO;
+        static const Vec4 ONE;
+        static const Vec4 NEG_ONE;
+
+        static const Vec4 X;
+        static const Vec4 Y;
+        static const Vec4 Z;
+        static const Vec4 W;
+
+        static const Vec4 NEG_X;
+        static const Vec4 NEG_Y;
+        static const Vec4 NEG_Z;
+        static const Vec4 NEG_W;
     };
 
     /*
@@ -1886,6 +1932,84 @@ namespace mp::vector {
         if(k < R{0}) return Vec4<R>{};
 
         return eta * (ar - d * n) - std::sqrt(k) * n;
+    }
+
+    /*
+    ---------------------------------
+            2D PERPENDICULAR VECTOR
+    ---------------------------------
+    Returns a vector perpendicular to the input vector 'v'.
+    Depends on the direction specified by the 'clockwise' parameter (true for clockwise, false for counter-clockwise)
+    */
+    template<typename T>
+    constexpr Vec2<T> perpendicular(const Vec2<T>& v, bool clockwise = true) {
+        return clockwise ? Vec2<T>{v.y, -v.x} : Vec2<T>{-v.y, v.x};
+    }
+
+    /*
+    ---------------------------------
+            ROTATE
+    ---------------------------------
+    Rotates the input vector v by the specified angle in radians.
+    The 2d rotation is counter-clockwise for positive angles and clockwise for negative angles.
+    The 3d rotation is performed around the specified axis using the right-hand rule.
+    The 4d rotation is performed within the plane defined by the vectors 'u' and 'w'.
+    */
+    template<typename T>
+    inline Vec2<std::conditional_t<std::is_integral_v<T>, double, T>>
+    rotate(const Vec2<T>& v,
+        std::conditional_t<std::is_integral_v<T>, double, T> angle) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        R c = std::cos(angle);
+        R s = std::sin(angle);
+
+        return {
+            static_cast<R>(v.x) * c - static_cast<R>(v.y) * s,
+            static_cast<R>(v.x) * s + static_cast<R>(v.y) * c
+        };
+    }
+
+    template<typename T>
+    inline Vec3<std::conditional_t<std::is_integral_v<T>, double, T>>
+    rotate(const Vec3<T>& v,
+        std::conditional_t<std::is_integral_v<T>, double, T> angle, const Vec3<T>& axis) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        R c = std::cos(angle);
+        R s = std::sin(angle);
+        R t = R{1} - c;
+
+        R x = static_cast<R>(axis.x);
+        R y = static_cast<R>(axis.y);
+        R z = static_cast<R>(axis.z);
+
+        R tx = t * x;
+        R ty = t * y;
+
+        return {
+            (tx * x + c) * static_cast<R>(v.x) + (tx * y - s * z) * static_cast<R>(v.y) + (tx * z + s * y) * static_cast<R>(v.z),
+            (tx * y + s * z) * static_cast<R>(v.x) + (ty * y + c) * static_cast<R>(v.y) + (ty * z - s * x) * static_cast<R>(v.z),
+            (tx * z - s * y) * static_cast<R>(v.x) + (ty * z + s * x) * static_cast<R>(v.y) + (t * z * z + c) * static_cast<R>(v.z)
+        };
+    }
+
+    template<typename T>
+    inline Vec4<T> rotate_plane(
+        const Vec4<T>& v,
+        T angle,
+        const Vec4<T>& u,
+        const Vec4<T>& w) {
+
+        T c = std::cos(angle);
+        T s = std::sin(angle);
+
+        T x = dot(v, u);
+        T y = dot(v, w);
+
+        return v
+            + ((c - T{1}) * x - s * y) * u
+            + (s * x + (c - T{1}) * y) * w;
     }
 
 } // namespace mp::vector
