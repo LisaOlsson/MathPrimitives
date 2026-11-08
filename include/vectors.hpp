@@ -849,7 +849,7 @@ namespace mp::vector {
         assert(max_length >= min_length);
 
         if(is_zero(v)) {
-            return v;
+            return Vec2<R>{};
         }
 
         Vec2<R> n{
@@ -903,7 +903,7 @@ namespace mp::vector {
         assert(max_length >= min_length);
 
         if(is_zero(v)) {
-            return v;
+            return Vec3<R>{};
         }
 
         Vec3<R> n{
@@ -960,7 +960,7 @@ namespace mp::vector {
         assert(max_length >= min_length);
 
         if(is_zero(v)) {
-            return v;
+            return Vec4<R>{};
         }
 
         Vec4<R> n{
@@ -1580,7 +1580,7 @@ namespace mp::vector {
             static_cast<R>(b.y)
         };
 
-        if (is_zero(b)) return ar;
+        if(is_zero(b)) return ar;
 
         return ar - project(ar, br);
     }
@@ -1601,7 +1601,7 @@ namespace mp::vector {
             static_cast<R>(b.z)
         };
 
-        if (is_zero(b)) return ar;
+        if(is_zero(b)) return ar;
 
         return ar - project(ar, br);
     }
@@ -1624,9 +1624,268 @@ namespace mp::vector {
             static_cast<R>(b.w)
         };
 
-        if (is_zero(b)) return ar;
+        if(is_zero(b)) return ar;
 
         return ar - project(ar, br);
+    }
+
+    /*
+    ---------------------------------
+            VECTOR REFLECTION
+    ---------------------------------
+    Computes the vector reflection of vector a against normal vector b.
+    If vector b is zero, the reflection is defined as a.
+    */
+    template<typename T>
+    inline Vec2<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    reflect(const Vec2<T>& a, const Vec2<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec2<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y)
+        };
+        Vec2<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y)
+        };
+
+        if(is_zero(b)) return ar;
+
+        return ar - R{2} * project(ar, br);
+    }
+
+    template<typename T>
+    inline Vec3<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    reflect(const Vec3<T>& a, const Vec3<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec3<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y),
+            static_cast<R>(a.z)
+        };
+        Vec3<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y),
+            static_cast<R>(b.z)
+        };
+
+        if(is_zero(b)) return ar;
+
+        return ar - R{2} * project(ar, br);
+    }
+
+    template<typename T>
+    inline Vec4<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    reflect(const Vec4<T>& a, const Vec4<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec4<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y),
+            static_cast<R>(a.z),
+            static_cast<R>(a.w)
+        };
+        Vec4<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y),
+            static_cast<R>(b.z),
+            static_cast<R>(b.w)
+        };
+
+        if(is_zero(b)) return ar;
+
+        return ar - R{2} * project(ar, br);
+    }
+
+    /*
+    ---------------------------------
+            VECTOR AXIS REFLECTION
+    ---------------------------------
+    Computes the vector reflection of vector a against the axis defined by vector b.
+    If vector b is zero, the reflection is defined as a.
+    */
+    template<typename T>
+    inline Vec2<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    axis_reflect(const Vec2<T>& a, const Vec2<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec2<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y)
+        };
+        Vec2<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y)
+        };
+
+        if(is_zero(b)) return ar;
+
+        return R{2} * project(ar, br) - ar;
+    }
+    template<typename T>
+    inline Vec3<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    axis_reflect(const Vec3<T>& a, const Vec3<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec3<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y),
+            static_cast<R>(a.z)
+        };
+        Vec3<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y),
+            static_cast<R>(b.z)
+        };
+
+        if(is_zero(b)) return ar;
+
+        return R{2} * project(ar, br) - ar;
+    }
+    template<typename T>
+    inline Vec4<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    axis_reflect(const Vec4<T>& a, const Vec4<T>& b) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec4<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y),
+            static_cast<R>(a.z),
+            static_cast<R>(a.w)
+        };
+        Vec4<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y),
+            static_cast<R>(b.z),
+            static_cast<R>(b.w)
+        };
+
+        if(is_zero(b)) return ar;
+
+        return R{2} * project(ar, br) - ar;
+    }
+
+    /*
+    ---------------------------------
+            VECTOR REFRACTION
+    ---------------------------------
+    Computes the vector refraction of vector a through the axis defined by vector b with refractive index eta.
+    If vector b is zero, the refraction is defined as a.
+    */
+    template<typename T>
+    inline Vec2<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    refract(const Vec2<T>& a, const Vec2<T>& b, std::conditional_t<std::is_integral_v<T>, double, T> eta) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        assert(eta > R{0});
+
+        Vec2<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y)
+        };
+        Vec2<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y)
+        };
+
+        if(is_zero(a)) return Vec2<R>{};
+        if(is_zero(b)) return ar;
+
+        Vec2<R> n = normalize(br);
+
+        R d = dot(ar, n);
+
+        if(d > R{0}) {
+            n = -n;
+            d = -d;
+        }
+
+        R len_sq = length_squared(ar);
+        R k = len_sq - eta * eta * (len_sq - d * d);
+
+        if(k < R{0}) return Vec2<R>{};
+
+        return eta * (ar - d * n) - std::sqrt(k) * n;
+    }
+
+    template<typename T>
+    inline Vec3<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    refract(const Vec3<T>& a, const Vec3<T>& b, std::conditional_t<std::is_integral_v<T>, double, T> eta) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        assert(eta > R{0});
+
+        Vec3<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y),
+            static_cast<R>(a.z)
+        };
+        Vec3<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y),
+            static_cast<R>(b.z)
+        };
+
+        if(is_zero(a)) return Vec3<R>{};
+        if(is_zero(b)) return ar;
+
+        Vec3<R> n = normalize(br);
+
+        R d = dot(ar, n);
+
+        if(d > R{0}) {
+            n = -n;
+            d = -d;
+        }
+
+        R len_sq = length_squared(ar);
+        R k = len_sq - eta * eta * (len_sq - d * d);
+
+        if(k < R{0}) return Vec3<R>{};
+
+        return eta * (ar - d * n) - std::sqrt(k) * n;
+    }
+
+    template<typename T>
+    inline Vec4<std::conditional_t<std::is_integral_v<T>, double, T>> 
+    refract(const Vec4<T>& a, const Vec4<T>& b, std::conditional_t<std::is_integral_v<T>, double, T> eta) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        assert(eta > R{0});
+
+        Vec4<R> ar{
+            static_cast<R>(a.x),
+            static_cast<R>(a.y),
+            static_cast<R>(a.z),
+            static_cast<R>(a.w)
+        };
+        Vec4<R> br{
+            static_cast<R>(b.x),
+            static_cast<R>(b.y),
+            static_cast<R>(b.z),
+            static_cast<R>(b.w)
+        };
+
+        if(is_zero(a)) return Vec4<R>{};
+        if(is_zero(b)) return ar;
+
+        Vec4<R> n = normalize(br);
+
+        R d = dot(ar, n);
+
+        if(d > R{0}) {
+            n = -n;
+            d = -d;
+        }
+
+        R len_sq = length_squared(ar);
+        R k = len_sq - eta * eta * (len_sq - d * d);
+
+        if(k < R{0}) return Vec4<R>{};
+
+        return eta * (ar - d * n) - std::sqrt(k) * n;
     }
 
 } // namespace mp::vector
