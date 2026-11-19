@@ -22,6 +22,15 @@ Aliases for types float and double are defined as:
 
 Vector components can also be accessed through the subscript operator [], with indices starting at zero (x = 0, y = 1, etc).
 
+### Vector constants
+
+Include `constants.hpp` to use the vector constants, i.e. `Vec3f::ZERO` or `Vec3f::UP`.
+`ZERO`, `ONE` and `NEG_ONE` set all components to zero, one and minus one, respectively.
+`X`, `Y`, `Z` and `W` are unit vectors along the corresponding positive axes, where those axes exist. `NEG_X`, `NEG_Y`, `NEG_Z` and `NEG_W` point along the corresponding negative axes.
+Constants with negative components require a component type that can represent minus one.
+In two and three dimensions, `RIGHT` and `LEFT` point along positive and negative x, and `UP` and `DOWN` point along positive and negative y.
+In three dimensions, `FORWARD` points along negative z and `BACK` points along positive z.
+
 ## Definitions
 
 Vectors are named `v` if the functions takes one vector argument, otherwise `a`, `b`, etc.
@@ -111,6 +120,60 @@ Returns `true` if at least one pair of corresponding components differs, otherwi
 Checks if all vector components are exactly zero.
 Returns `true` if all components are zero, otherwise `false`.
 
+`is_zero(v, epsilon)`
+Returns `true` if the absolute value of each vector component is less than or equal to `epsilon`, otherwise `false`.
+The tolerance must have the same type as the vector components.
+
+### Is normalized
+
+`is_normalized(v)`
+Returns `true` if the calculated length of vector `v` is exactly one, otherwise `false`.
+
+`is_normalized(v, epsilon)`
+Returns `true` if the absolute difference between the calculated length and one is less than or equal to `epsilon`, otherwise `false`.
+The tolerance must have the same type as the vector components.
+
+### Is parallel
+
+`is_parallel(a, b)`
+Checks if vectors `a` and `b` are parallel, including vectors pointing in opposite directions.
+Returns `true` if the difference of products for each pair of axes is zero, i.e. `a.x * b.y - a.y * b.x` is zero for the x and y axes. A zero vector is considered parallel to any vector.
+
+`is_parallel(a, b, epsilon)`
+Returns `true` if the absolute value of each such difference is less than or equal to `epsilon`, otherwise `false`.
+The tolerance must have the same type as the vector components. It applies directly to these differences, so the result depends on the lengths of the input-vectors.
+
+### Is orthogonal
+
+`is_orthogonal(a, b)`
+Returns `true` if the dot product of vectors `a` and `b` is exactly zero, otherwise `false`. A zero vector is considered orthogonal to any vector.
+
+`is_orthogonal(a, b, epsilon)`
+Returns `true` if the absolute value of the dot product is less than or equal to `epsilon`, otherwise `false`.
+The tolerance must have the same type as the vector components and applies directly to the dot product.
+
+### Is opposite
+
+`is_opposite(a, b)`
+Returns `true` if vectors `a` and `b` are parallel and their dot product is negative, otherwise `false`.
+The vectors may have different lengths.
+
+`is_opposite(a, b, epsilon)`
+Returns `true` if `is_parallel(a, b, epsilon)` is true and the dot product is less than or equal to `-epsilon`, otherwise `false`.
+The tolerance must have the same type as the vector components. With `epsilon` equal to zero, this overload also accepts a zero dot product, i.e. when one of the vectors is zero.
+
+### Conversion between dimensions
+
+`to_vec2(v)`
+Converts a three- or four-dimensional vector to two dimensions by keeping `x` and `y`.
+
+`to_vec3(v)`
+Converts a two- or four-dimensional vector to three dimensions. The new `z` component is zero for a two-dimensional input. The `w` component is discarded for a four-dimensional input.
+
+`to_vec4(v)`
+Converts a two- or three-dimensional vector to four dimensions by filling the missing components with zeros.
+All three functions return a vector with the same component type as the input vector `v`.
+
 ### Dot product
 
 `dot(a, b)`
@@ -153,6 +216,30 @@ Returns a vector of the same type as the input-vectors.
 `cabs(v)`
 Computes the absolute value of each vector component.
 Returns a vector of the same type as the input vector `v`.
+
+### Component-wise floor
+
+`cfloor(v)`
+Rounds each vector component down to the nearest integer, i.e. `-1.25` becomes `-2`.
+Returns a vector of the same type as `v`. Integer vectors are returned as they are.
+
+### Component-wise ceiling
+
+`cceil(v)`
+Rounds each vector component up to the nearest integer, i.e. `-1.25` becomes `-1`.
+Returns a vector of the same type as `v`. Integer vectors are returned as they are.
+
+### Component-wise rounding
+
+`cround(v)`
+Rounds each vector component to the nearest integer. Values halfway between two integers are rounded away from zero, i.e. `-1.5` becomes `-2`.
+Returns a vector of the same type as `v`. Integer vectors are returned as they are.
+
+### Component-wise fractional part
+
+`cfract(v)`
+Computes the fractional part of each component by subtracting its floor, i.e. `-1.25` gives `0.75`.
+Returns a vector of the same type as `v`, with all components zero for integer vectors.
 
 ### Length
 
@@ -215,7 +302,11 @@ Returns an index of type `std::size_t`.
 
 `normalize(v)`
 Computes a unit vector pointing in the same direction as vector `v`.
-If the calculated length is zero or non-finite, returns a zero vector.
+If the calculated length is zero, returns a zero vector.
+
+`normalize(v, fallback)`
+Normalizes `fallback` if all components of `v` are exactly zero. Otherwise normalizes `v`.
+The fallback vector must have the same type as `v`.
 Returns a vector of the same type as `v` for floating-point vectors, or a vector with `double` components for integer vectors.
 
 ### Linear interpolation
@@ -225,6 +316,15 @@ Interpolates between vectors `a` and `b` using the factor `t`, i.e. `(1 - t) * a
 Returns `a` exactly when `t` is zero, and `b` exactly when `t` is one.
 The factor `t` must have the same type as the vector components. Values outside the range zero to one extrapolate beyond the input-vectors.
 Returns a vector of the same type as the input-vectors.
+
+### Spherical interpolation
+
+`slerp(a, b, t)`
+Interpolates between vectors `a` and `b` using the factor `t`. Non-parallel vectors of equal length follow a circular arc, and non-parallel vectors of different lengths follow an elliptical arc.
+If either calculated length is zero, returns `a` for any `t`.
+Otherwise returns `a` exactly when `t` is zero, and `b` exactly when `t` is one. Parallel vectors use linear interpolation. Opposite vectors are undefined and zero vector is returned.
+Values of `t` outside the range zero to one extrapolate beyond the input-vectors.
+Use floating-point vectors of the same type. The result has the same vector type as the input-vectors, and `t` is converted to their component type.
 
 ### Distance
 
@@ -307,4 +407,37 @@ Refracts vector `a` through a surface with normal vector `b`, using the refracti
 The ratio `eta` must be positive, with the same type as the vector components for floating-point vectors, or `double` for integer vectors.
 Neither vector needs to be normalized. The normal is normalized internally and oriented against the incident vector, and the refracted vector preserves the length of `a`.
 If vector `a` is zero or total internal reflection occurs, returns a zero vector. If vector `b` is zero, returns vector `a`.
+Returns a vector of the same type as the input-vectors for floating-point vectors, or a vector with `double` components for integer vectors.
+
+### Two-dimensional perpendicular vector
+
+`perpendicular(v, clockwise)`
+Rotates a two-dimensional vector by 90 degrees. If `clockwise` is `true`, the result is `(v.y, -v.x)`. If it is `false`, the result is `(-v.y, v.x)`.
+The default value for `clockwise` is `true`, so `perpendicular(v)` rotates clockwise.
+Returns a vector of the same type as the input vector `v`.
+
+### Vector rotation
+
+`rotate(v, angle)`
+Rotates a two-dimensional vector by `angle` radians. Positive angles rotate counterclockwise and negative angles rotate clockwise.
+
+`rotate(v, angle, axis)`
+Rotates a three-dimensional vector by `angle` radians around `axis`, following the right-hand rule.
+The axis must be a unit vector of the same type as `v`.
+In both overloads, `angle` is converted to the vector's component type for floating-point vectors, or `double` for integer vectors.
+Returns a vector of the same type as `v` for floating-point vectors, or a vector with `double` components for integer vectors.
+
+### Four-dimensional plane rotation
+
+`rotate_plane(v, angle, a, b)`
+Rotates the part of a four-dimensional vector `v` in the plane defined by `a` and `b` by `angle` radians. A positive angle rotates from `a` towards `b`. The part perpendicular to the plane stays the same.
+Vectors `a` and `b` must be perpendicular unit vectors of the same type as `v`, and `angle` must have the same type as the vector components.
+Returns a vector of the same type as the input vector `v`. Use floating-point vectors for rotation, as the sine and cosine are stored in the component type.
+
+### Move towards
+
+`move_towards(a, b, dist)`
+Moves from vector `a` towards target vector `b` by up to `dist`. If the calculated distance to `b` is zero or less than or equal to `dist`, returns `b`.
+A negative `dist` moves away from `b` by its absolute value when the calculated distance is nonzero.
+The distance `dist` is converted to the vector's component type for floating-point vectors, or `double` for integer vectors.
 Returns a vector of the same type as the input-vectors for floating-point vectors, or a vector with `double` components for integer vectors.

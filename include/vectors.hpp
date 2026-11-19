@@ -29,6 +29,9 @@ namespace mp::vector {
     ---------------------------------
     Plain aggregate types for 2D, 3D, and 4D vectors with directly accessible components.
     Use {} for a zero-initialized vector.
+    
+    Vector constants are defined in constants.hpp.
+    Include that header to use them.
     */
     template<typename T>
     struct Vec2 {
@@ -559,19 +562,225 @@ namespace mp::vector {
           IS ZERO
     ---------------------------------
     Checks if a vector has zero length (all components are zero).
+    Returns true if all components are exactly zero.
+
+    Overloaded with epsilon for approximate zero check.
     */
     template<typename T>
     constexpr bool is_zero(const Vec2<T>& v) {
         return v.x == T(0) && v.y == T(0);
     }
     template<typename T>
+    inline bool is_zero(const Vec2<T>& v, T epsilon) {
+        return std::abs(v.x) <= epsilon && std::abs(v.y) <= epsilon;
+    }
+
+    template<typename T>
     constexpr bool is_zero(const Vec3<T>& v) {
         return v.x == T(0) && v.y == T(0) && v.z == T(0);
     }
     template<typename T>
+    inline bool is_zero(const Vec3<T>& v, T epsilon) {
+        return std::abs(v.x) <= epsilon && std::abs(v.y) <= epsilon && std::abs(v.z) <= epsilon;
+    }
+
+    template<typename T>
     constexpr bool is_zero(const Vec4<T>& v) {
         return v.x == T(0) && v.y == T(0) && v.z == T(0) && v.w == T(0);
     }
+    template<typename T>
+    inline bool is_zero(const Vec4<T>& v, T epsilon) {
+        return std::abs(v.x) <= epsilon && std::abs(v.y) <= epsilon && std::abs(v.z) <= epsilon && std::abs(v.w) <= epsilon;
+    }
+
+    /*
+    ---------------------------------
+               IS NORMALIZED
+    ---------------------------------
+    Checks if a vector has unit length (length equal to 1).
+
+    Overloaded with epsilon for approximate unit length check.
+    */
+    template<typename T>
+    constexpr bool is_normalized(const Vec2<T>& v) {
+        return length(v) == T{1};
+    }
+    template<typename T>
+    inline bool is_normalized(const Vec2<T>& v, T epsilon) {
+        return std::abs(length(v) - T{1}) <= epsilon;
+    }
+    
+    template<typename T>
+    constexpr bool is_normalized(const Vec3<T>& v) {
+        return length(v) == T{1};
+    }
+    template<typename T>
+    inline bool is_normalized(const Vec3<T>& v, T epsilon) {
+        return std::abs(length(v) - T{1}) <= epsilon;
+    }
+
+    template<typename T>
+    constexpr bool is_normalized(const Vec4<T>& v) {
+        return length(v) == T{1};
+    }
+    template<typename T>
+    inline bool is_normalized(const Vec4<T>& v, T epsilon) {
+        return std::abs(length(v) - T{1}) <= epsilon;
+    }
+
+    /*
+    ---------------------------------
+               IS PARALLEL
+    ---------------------------------
+    Checks if two vectors are parallel (one is a scalar multiple of the other).
+
+    Overloaded with epsilon for approximate parallel check.
+    */
+    template<typename T>
+    constexpr bool is_parallel(const Vec2<T>& a, const Vec2<T>& b) {
+        return a.x * b.y == a.y * b.x;
+    }
+    template<typename T>
+    inline bool is_parallel(const Vec2<T>& a, const Vec2<T>& b, T epsilon) {
+        return std::abs(a.x * b.y - a.y * b.x) <= epsilon;
+    }
+
+    template<typename T>
+    constexpr bool is_parallel(const Vec3<T>& a, const Vec3<T>& b) {
+        return cross(a, b) == Vec3<T>{T{0}, T{0}, T{0}};
+    }
+    template<typename T>
+    inline bool is_parallel(const Vec3<T>& a, const Vec3<T>& b, T epsilon) {
+        Vec3<T> c = cross(a, b);
+        return std::abs(c.x) <= epsilon && std::abs(c.y) <= epsilon && std::abs(c.z) <= epsilon;
+    }
+
+    template<typename T>
+    constexpr bool is_parallel(const Vec4<T>& a, const Vec4<T>& b) {
+        return a.x * b.y == a.y * b.x &&
+            a.x * b.z == a.z * b.x &&
+            a.x * b.w == a.w * b.x &&
+            a.y * b.z == a.z * b.y &&
+            a.y * b.w == a.w * b.y &&
+            a.z * b.w == a.w * b.z;
+    }
+    template<typename T>
+    inline bool is_parallel(const Vec4<T>& a, const Vec4<T>& b, T epsilon) {
+        return std::abs(a.x * b.y - a.y * b.x) <= epsilon &&
+            std::abs(a.x * b.z - a.z * b.x) <= epsilon &&
+            std::abs(a.x * b.w - a.w * b.x) <= epsilon &&
+            std::abs(a.y * b.z - a.z * b.y) <= epsilon &&
+            std::abs(a.y * b.w - a.w * b.y) <= epsilon &&
+            std::abs(a.z * b.w - a.w * b.z) <= epsilon;
+    }
+
+    /*
+    ---------------------------------
+               IS ORTHOGONAL
+    ---------------------------------
+    Checks if two vectors are orthogonal (perpendicular to each other).
+
+    Overloaded with epsilon for approximate orthogonal check.
+    */
+    template<typename T>
+    constexpr bool is_orthogonal(const Vec2<T>& a, const Vec2<T>& b) {
+        return dot(a, b) == T{0};
+    }
+    template<typename T>
+    inline bool is_orthogonal(const Vec2<T>& a, const Vec2<T>& b, T epsilon) {
+        return std::abs(dot(a, b)) <= epsilon;
+    }
+
+    template<typename T>
+    constexpr bool is_orthogonal(const Vec3<T>& a, const Vec3<T>& b) {
+        return dot(a, b) == T{0};
+    }
+    template<typename T>
+    inline bool is_orthogonal(const Vec3<T>& a, const Vec3<T>& b, T epsilon) {
+        return std::abs(dot(a, b)) <= epsilon;
+    }
+
+    template<typename T>
+    constexpr bool is_orthogonal(const Vec4<T>& a, const Vec4<T>& b) {
+        return dot(a, b) == T{0};
+    }
+    template<typename T>
+    inline bool is_orthogonal(const Vec4<T>& a, const Vec4<T>& b, T epsilon) {
+        return std::abs(dot(a, b)) <= epsilon;
+    }
+
+    /*
+    ---------------------------------
+               IS OPPOSITE
+    ---------------------------------
+    Checks if two vectors are opposite (one is the negation of the other).
+
+    Overloaded with epsilon for approximate opposite check.
+    */
+    template<typename T>
+    constexpr bool is_opposite(const Vec2<T>& a, const Vec2<T>& b) {
+        return is_parallel(a, b) && dot(a, b) < T{0};
+    }
+    template<typename T>
+    inline bool is_opposite(const Vec2<T>& a, const Vec2<T>& b, T epsilon) {
+        return is_parallel(a, b, epsilon) && dot(a, b) < T{0};
+    }
+
+    template<typename T>
+    constexpr bool is_opposite(const Vec3<T>& a, const Vec3<T>& b) {
+        return is_parallel(a, b) && dot(a, b) < T{0};
+    }
+    template<typename T>
+    inline bool is_opposite(const Vec3<T>& a, const Vec3<T>& b, T epsilon) {
+        return is_parallel(a, b, epsilon) && dot(a, b) < T{0};
+    }
+
+    template<typename T>
+    constexpr bool is_opposite(const Vec4<T>& a, const Vec4<T>& b) {
+        return is_parallel(a, b) && dot(a, b) < T{0};
+    }
+    template<typename T>
+    inline bool is_opposite(const Vec4<T>& a, const Vec4<T>& b, T epsilon) {
+        return is_parallel(a, b, epsilon) && dot(a, b) < T{0};
+    }
+
+
+    /*
+    ---------------------------------
+               CONVERSION BETWEEN DIMENSIONS
+    ---------------------------------
+    Provides functions to convert vectors between different dimensions.
+    Missing components are filled with zeros.
+    Superfluous components are discarded when converting to lower dimensions.
+    */
+
+    template<typename T>
+    constexpr Vec2<T> to_vec2(const Vec3<T>& v) {
+        return Vec2<T>{v.x, v.y};
+    }
+    template<typename T>
+    constexpr Vec2<T> to_vec2(const Vec4<T>& v) {
+        return Vec2<T>{v.x, v.y};
+    }
+
+    template<typename T>
+    constexpr Vec3<T> to_vec3(const Vec2<T>& v) {
+        return Vec3<T>{v.x, v.y, T{0}};
+    }
+    template<typename T>
+    constexpr Vec3<T> to_vec3(const Vec4<T>& v) {
+        return Vec3<T>{v.x, v.y, v.z};
+    }
+
+    template<typename T>
+    constexpr Vec4<T> to_vec4(const Vec2<T>& v) {
+        return Vec4<T>{v.x, v.y, T{0}, T{0}};
+    }
+    template<typename T>
+    constexpr Vec4<T> to_vec4(const Vec3<T>& v) {
+        return Vec4<T>{v.x, v.y, v.z, T{0}};
+    }
+
 
 
     /*
@@ -745,6 +954,169 @@ namespace mp::vector {
             v.z < T{0} ? -v.z : v.z,
             v.w < T{0} ? -v.w : v.w
         };
+    }
+
+    /*
+    ---------------------------------
+              COMPONENT-WISE FLOOR AND CEIL
+    ---------------------------------
+    Computes the component-wise floor and ceil of a vector.
+    The result retains the vector's component type.
+    */
+    template<typename T>
+    inline Vec2<T> cfloor(const Vec2<T>& v) {
+        if constexpr (std::is_integral_v<T>)
+            return v;
+        else {
+            return {
+                std::floor(v.x),
+                std::floor(v.y)
+            };
+        }
+    }
+    template<typename T>
+    inline Vec3<T> cfloor(const Vec3<T>& v) {
+        if constexpr (std::is_integral_v<T>)
+            return v;
+        else {
+            return {
+                std::floor(v.x),
+                std::floor(v.y),
+                std::floor(v.z)
+            };
+        }
+    }
+    template<typename T>
+    inline Vec4<T> cfloor(const Vec4<T>& v) {
+        if constexpr (std::is_integral_v<T>)
+            return v;
+        else {
+            return {
+                std::floor(v.x),
+                std::floor(v.y),
+                std::floor(v.z),
+                std::floor(v.w)
+            };
+        }
+    }
+
+    template<typename T>
+    inline Vec2<T> cceil(const Vec2<T>& v) {
+        if constexpr (std::is_integral_v<T>)
+            return v;
+        else {
+            return {
+                std::ceil(v.x),
+                std::ceil(v.y)
+            };
+        }
+    }
+    template<typename T>
+    inline Vec3<T> cceil(const Vec3<T>& v) {
+        if constexpr (std::is_integral_v<T>)
+            return v;
+        else {
+            return {
+                std::ceil(v.x),
+                std::ceil(v.y),
+                std::ceil(v.z)
+            };
+        }
+    }
+    template<typename T>
+    inline Vec4<T> cceil(const Vec4<T>& v) {
+        if constexpr (std::is_integral_v<T>)
+            return v;
+        else {
+            return {
+                std::ceil(v.x),
+                std::ceil(v.y),
+                std::ceil(v.z),
+                std::ceil(v.w)
+            };
+        }
+    }
+
+    /*
+    ---------------------------------
+              COMPONENT-WISE ROUND AND FRACT
+    ---------------------------------
+    cround() rounds each component to the nearest integer.
+    cfract() returns the fractional part of each component.
+    The result retains the vector's component type.
+    */
+    template<typename T>
+    inline Vec2<T> cround(const Vec2<T>& v) {
+        if constexpr (std::is_integral_v<T>)
+            return v;
+        else {
+            return {
+                std::round(v.x),
+                std::round(v.y)
+            };
+        }
+    }
+    template<typename T>
+    inline Vec3<T> cround(const Vec3<T>& v) {
+        if constexpr (std::is_integral_v<T>)
+            return v;
+        else {
+            return {
+                std::round(v.x),
+                std::round(v.y),
+                std::round(v.z)
+            };
+        }
+    }
+    template<typename T>
+    inline Vec4<T> cround(const Vec4<T>& v) {
+        if constexpr (std::is_integral_v<T>)
+            return v;
+        else {
+            return {
+                std::round(v.x),
+                std::round(v.y),
+                std::round(v.z),
+                std::round(v.w)
+            };
+        }
+    }
+
+    template<typename T>
+    inline Vec2<T> cfract(const Vec2<T>& v) {
+        if constexpr (std::is_integral_v<T>)
+            return Vec2<T>{0, 0};
+        else {
+            return {
+                v.x - std::floor(v.x),
+                v.y - std::floor(v.y)
+            };
+        }
+    }
+    template<typename T>
+    inline Vec3<T> cfract(const Vec3<T>& v) {
+        if constexpr (std::is_integral_v<T>)
+            return Vec3<T>{0, 0, 0};
+        else {
+            return {
+                v.x - std::floor(v.x),
+                v.y - std::floor(v.y),
+                v.z - std::floor(v.z)
+            };
+        }
+    }
+    template<typename T>
+    inline Vec4<T> cfract(const Vec4<T>& v) {
+        if constexpr (std::is_integral_v<T>)
+            return Vec4<T>{0, 0, 0, 0};
+        else {
+            return {
+                v.x - std::floor(v.x),
+                v.y - std::floor(v.y),
+                v.z - std::floor(v.z),
+                v.w - std::floor(v.w)
+            };
+        }
     }
 
 
@@ -1158,7 +1530,9 @@ namespace mp::vector {
               NORMALIZATION
     ---------------------------------
     Returns a unit vector pointing in the same direction as the input.
-    Returns a zero vector if the computed length is zero or non-finite.
+    Returns a zero vector if the computed length is zero.
+
+    Overloaded with optional fallback vector.
 
     Integer components are converted to double before calculation, and the result has double components.
     Floating-point vectors retain their component type.
@@ -1173,11 +1547,16 @@ namespace mp::vector {
         };
 
         R len = length(n);
-        if (!(len > R{0}) || !std::isfinite(len))
+        if(len == R{0})
             return Vec2<R>{};
 
         return n / len;
     }
+
+    template<typename T>
+    constexpr auto normalize(const Vec2<T>& v, const Vec2<T>& fallback) {
+        return is_zero(v) ? normalize(fallback) : normalize(v);
+    }    
 
     template<typename T>
     constexpr auto normalize(const Vec3<T>& v) {
@@ -1190,10 +1569,15 @@ namespace mp::vector {
         };
 
         R len = length(n);
-        if (!(len > R{0}) || !std::isfinite(len))
+        if (len == R{0})
             return Vec3<R>{};
 
         return n / len;
+    }
+
+    template<typename T>
+    constexpr auto normalize(const Vec3<T>& v, const Vec3<T>& fallback) {
+        return is_zero(v) ? normalize(fallback) : normalize(v);
     }
 
     template<typename T>
@@ -1208,10 +1592,15 @@ namespace mp::vector {
         };
 
         R len = length(n);
-        if (!(len > R{0}) || !std::isfinite(len))
+        if (len == R{0})
             return Vec4<R>{};
 
         return n / len;
+    }
+    
+    template<typename T>
+    constexpr auto normalize(const Vec4<T>& v, const Vec4<T>& fallback) {
+        return is_zero(v) ? normalize(fallback) : normalize(v);
     }
 
     /*
@@ -1248,6 +1637,117 @@ namespace mp::vector {
         return (T{1} - t) * a + t * b;
     }
     
+    /*
+    ---------------------------------
+            SPHERICAL INTERPOLATION
+    ---------------------------------
+    Interpolates between two vectors along a circular or elliptical arc.
+    Equal-length vectors produce circular interpolation; unequal lengths produce elliptical interpolation.
+    Returns a exactly when t == 0 and b exactly when t == 1.
+
+    t is not clamped; values outside [0, 1] extrapolate.
+    Collinear or zero vectors use linear interpolation.
+    Opposite vector pairs are undefined since there is no unique shortest arc between them.
+    */
+    template<typename T>
+    inline Vec2<std::conditional_t<std::is_integral_v<T>, double, T>>
+    slerp(const Vec2<T>& a, const Vec2<T>& b,
+        std::conditional_t<std::is_integral_v<T>, double, T> t) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec2<R> ar{static_cast<R>(a.x), static_cast<R>(a.y)};
+        Vec2<R> br{static_cast<R>(b.x), static_cast<R>(b.y)};
+
+        // Return early if t is 0 or 1 to avoid unnecessary computation.
+        if (t == R{0}) return ar;
+        if (t == R{1}) return br;
+
+        // Return a if either vector has zero length, as slerp is undefined in that case.
+        if (is_zero(ar) || is_zero(br))
+            return lerp(ar, br, t);
+
+        // If the vectors are opposite, slerp is undefined. Return zero vector as a fallback.
+        if (is_opposite(ar, br)) return Vec2<R>{R{0}, R{0}};
+
+        // If the vectors are parallel, return linear interpolation.
+        if (is_parallel(ar, br)) return lerp(ar, br, t);
+
+        R theta = std::atan2(cross(ar, br), dot(ar, br));
+
+        R sin_theta = std::sin(theta);
+
+        R factor_a = std::sin((R{1} - t) * theta) / sin_theta;
+        R factor_b = std::sin(t * theta) / sin_theta;
+
+        return factor_a * ar + factor_b * br;
+    }
+
+    template<typename T>
+    inline Vec3<std::conditional_t<std::is_integral_v<T>, double, T>>
+    slerp(const Vec3<T>& a, const Vec3<T>& b, 
+        std::conditional_t<std::is_integral_v<T>, double, T> t) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec3<R> ar{static_cast<R>(a.x), static_cast<R>(a.y), static_cast<R>(a.z)};
+        Vec3<R> br{static_cast<R>(b.x), static_cast<R>(b.y), static_cast<R>(b.z)};
+
+        // Return early if t is 0 or 1 to avoid unnecessary computation.
+        if (t == R{0}) return ar;
+        if (t == R{1}) return br;
+
+        // Return a if either vector has zero length, as slerp is undefined in that case.
+        if (is_zero(ar) || is_zero(br))
+            return lerp(ar, br, t);
+
+        // If the vectors are opposite, slerp is undefined. Return zero vector as a fallback.
+        if (is_opposite(ar, br)) return Vec3<R>{R{0}, R{0}, R{0}};
+
+        // If the vectors are parallel, return linear interpolation.
+        if (is_parallel(ar, br)) return lerp(ar, br, t);
+
+        R theta = angle(ar, br);
+
+        R sin_theta = std::sin(theta);
+
+        R factor_a = std::sin((R{1} - t) * theta) / sin_theta;
+        R factor_b = std::sin(t * theta) / sin_theta;
+
+        return factor_a * ar + factor_b * br;
+    }
+
+    template<typename T>
+    inline Vec4<std::conditional_t<std::is_integral_v<T>, double, T>>
+    slerp(const Vec4<T>& a, const Vec4<T>& b, 
+        std::conditional_t<std::is_integral_v<T>, double, T> t) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec4<R> ar{static_cast<R>(a.x), static_cast<R>(a.y), static_cast<R>(a.z), static_cast<R>(a.w)};
+        Vec4<R> br{static_cast<R>(b.x), static_cast<R>(b.y), static_cast<R>(b.z), static_cast<R>(b.w)};
+
+        // Return early if t is 0 or 1 to avoid unnecessary computation.
+        if (t == R{0}) return ar;
+        if (t == R{1}) return br;
+
+        // Return a if either vector has zero length, as slerp is undefined in that case.
+        if (is_zero(ar) || is_zero(br))
+            return lerp(ar, br, t);
+
+        // If the vectors are opposite, slerp is undefined. Return zero vector as a fallback.
+        if (is_opposite(ar, br)) return Vec4<R>{R{0}, R{0}, R{0}, R{0}};
+
+        // If the vectors are parallel, return linear interpolation.
+        if (is_parallel(ar, br)) return lerp(ar, br, t);
+
+        R theta = angle(ar, br);
+
+        R sin_theta = std::sin(theta);
+
+        R factor_a = std::sin((R{1} - t) * theta) / sin_theta;
+        R factor_b = std::sin(t * theta) / sin_theta;
+
+        return factor_a * ar + factor_b * br;
+    }
+
     /*
     ---------------------------------
                  DISTANCE
@@ -2011,5 +2511,68 @@ namespace mp::vector {
             + ((c - T{1}) * x - s * y) * u
             + (s * x + (c - T{1}) * y) * w;
     }
+
+    /*
+    ---------------------------------
+            MOVE TOWARDS
+    ---------------------------------
+    Moves the vector 'v' towards the target vector 'target' by the specified maximum distance 'dist'. 
+    If the distance to the target is less than or equal to 'dist', the result will be the target itself.
+    If 'dist' is negative, the vector will move away from the target.
+    */
+    template<typename T>
+    inline Vec2<std::conditional_t<std::is_integral_v<T>, double, T>>
+    move_towards(const Vec2<T>& v, const Vec2<T>& target,
+                std::conditional_t<std::is_integral_v<T>, double, T> dist) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec2<R> a{static_cast<R>(v.x), static_cast<R>(v.y)};
+        Vec2<R> b{static_cast<R>(target.x), static_cast<R>(target.y)};
+
+        Vec2<R> delta = b - a;
+        R len = length(delta);
+
+        if (len <= dist || len == R{0})
+            return b;
+
+        return a + delta * (dist / len);
+    }
+
+    template<typename T>
+    inline Vec3<std::conditional_t<std::is_integral_v<T>, double, T>>
+    move_towards(const Vec3<T>& v, const Vec3<T>& target,
+                std::conditional_t<std::is_integral_v<T>, double, T> dist) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec3<R> a{static_cast<R>(v.x), static_cast<R>(v.y), static_cast<R>(v.z)};
+        Vec3<R> b{static_cast<R>(target.x), static_cast<R>(target.y), static_cast<R>(target.z)};
+
+        Vec3<R> delta = b - a;
+        R len = length(delta);
+
+        if (len <= dist || len == R{0})
+            return b;
+
+        return a + delta * (dist / len);
+    }
+
+    template<typename T>
+    inline Vec4<std::conditional_t<std::is_integral_v<T>, double, T>>
+    move_towards(const Vec4<T>& v, const Vec4<T>& target,
+                std::conditional_t<std::is_integral_v<T>, double, T> dist) {
+        using R = std::conditional_t<std::is_integral_v<T>, double, T>;
+
+        Vec4<R> a{static_cast<R>(v.x), static_cast<R>(v.y), static_cast<R>(v.z), static_cast<R>(v.w)};
+        Vec4<R> b{static_cast<R>(target.x), static_cast<R>(target.y), static_cast<R>(target.z), static_cast<R>(target.w)};
+
+        Vec4<R> delta = b - a;
+        R len = length(delta);
+
+        if (len <= dist || len == R{0})
+            return b;
+
+        return a + delta * (dist / len);
+    }
+
 
 } // namespace mp::vector
